@@ -1,0 +1,10 @@
+{
+  "name": "KlangPads",
+  "short_name": "KlangPads",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a1230",
+  "theme_color": "#1a1230",
+  "start_url": "./",
+  "icons": []
+}
