@@ -20,3 +20,5 @@ Eingebaute Stimmen sind synthetisch (kein Sample-Copyright). BPM, Swing, Muster 
 ## Deploy
 
 Railway liest `railway.json` + `Dockerfile`. Start: `node scripts/railway-start.mjs` auf `0.0.0.0:$PORT`.
+
+GitHub Pages: https://ralfarminkirchner-netizen.github.io/klangpads/
