@@ -83,8 +83,12 @@ if (existsSync(shellPath)) {
 copyFileSync(indexPath, join(root, "404.html"));
 writeFileSync(join(root, ".nojekyll"), "");
 
-const docs = "docs";
-rmSync(docs, { recursive: true, force: true });
-mkdirSync(docs, { recursive: true });
-cpSync(root, docs, { recursive: true });
-console.log("[pages-shell] published", docs);
+if (process.argv.includes("--no-docs")) {
+  console.log("[pages-shell] static root ready:", root);
+} else {
+  const docs = "docs";
+  rmSync(docs, { recursive: true, force: true });
+  mkdirSync(docs, { recursive: true });
+  cpSync(root, docs, { recursive: true });
+  console.log("[pages-shell] published", docs);
+}
