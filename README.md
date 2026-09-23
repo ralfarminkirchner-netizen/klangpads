@@ -1,6 +1,7 @@
-# KLANGPADS
+# FASKA KLANGPADS
 
 Studio-Instrument: 16 Gummi-Pads, 8×16 Pattern-Matrix, Loops, Mikro, Datei, Lied.
+Hängt an derselben Soundbank wie LOOPTiSCH und FASKA: `http://127.0.0.1:8778` (`shared-library/bridge.py` in der Klangwerkstatt). Ohne Bank spielen die eingebauten Synths.
 
 Schwester von [LOOPTiSCH](https://ralfarminkirchner-netizen.github.io/looptisch/).
 

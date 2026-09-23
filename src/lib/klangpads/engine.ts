@@ -1056,6 +1056,22 @@ export class KlangEngine {
     }
   }
 
+  async loadBankClip(pad: PadId, data: ArrayBuffer, name: string) {
+    this.unlock();
+    if (!this.ctx) return;
+    this.selectedPad = pad;
+    const track = PAD_TO_TRACK[pad];
+    if (track) this.selectedTrack = track;
+    try {
+      const audio = await this.ctx.decodeAudioData(data.slice(0));
+      this.applyFit(pad, audio);
+      const short = name.replace(/\.[a-z0-9]+$/i, "").slice(0, 22);
+      this.setNote(`${PAD_LABEL[pad]} · ${short}`);
+    } catch {
+      this.setNote("Bank-Clip nicht lesbar");
+    }
+  }
+
   fitSelected() {
     this.unlock();
     const pad = this.selectedPad;

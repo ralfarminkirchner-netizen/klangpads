@@ -3,7 +3,7 @@ import { AuthProvider } from "@/lib/auth/provider";
 import { PreviewHostBridge } from "@/components/preview-host-bridge";
 import appCss from "../styles.css?url";
 
-const APP_NAME = "KLANGPADS";
+const APP_NAME = "FASKA KLANGPADS";
 
 function asset(path: string) {
   const base = import.meta.env.BASE_URL || "/";
@@ -25,7 +25,7 @@ export const Route = createRootRoute({
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       {
         name: "description",
-        content: "KLANGPADS — 16 Pads, Pattern-Matrix, Loops, Mikro und Aufnahme.",
+        content: "FASKA KLANGPADS — 16 Pads an der gemeinsamen Soundbank, Pattern, Loops, Mikro.",
       },
     ],
     links: [

@@ -6,6 +6,12 @@ import {
   TRACKS,
   type PadId,
 } from "@/lib/klangpads/engine";
+import {
+  bankAudio,
+  bankHealth,
+  bankSamples,
+  type BankSample,
+} from "@/lib/klangpads/bank";
 
 function velFrom(e: React.PointerEvent<HTMLElement>) {
   const r = e.currentTarget.getBoundingClientRect();
@@ -19,6 +25,11 @@ export function Klangpads() {
   const fileRef = useRef<HTMLInputElement>(null);
   const holdRef = useRef<number | null>(null);
   const [dragPad, setDragPad] = useState<PadId | null>(null);
+  const [bankOn, setBankOn] = useState(false);
+  const [bankLabel, setBankLabel] = useState("AUS");
+  const [bankType, setBankType] = useState("");
+  const [clips, setClips] = useState<BankSample[]>([]);
+  const [bankBusy, setBankBusy] = useState<string | null>(null);
 
   useEffect(() => {
     const e = new KlangEngine();
@@ -38,6 +49,42 @@ export function Klangpads() {
       if (holdRef.current) window.clearInterval(holdRef.current);
     };
   }, []);
+
+  useEffect(() => {
+    let stop = false;
+    const pull = async (type: string) => {
+      try {
+        const h = await bankHealth();
+        if (stop) return;
+        setBankOn(true);
+        setBankLabel(h.library.replace(/ samples.*/, ""));
+        const list = await bankSamples(type || undefined);
+        if (!stop) setClips(list);
+      } catch {
+        if (!stop) {
+          setBankOn(false);
+          setBankLabel("AUS");
+          setClips([]);
+        }
+      }
+    };
+    void pull(bankType);
+    const t = window.setInterval(() => void pull(bankType), 8000);
+    return () => {
+      stop = true;
+      window.clearInterval(t);
+    };
+  }, [bankType]);
+
+  const loadClip = (clip: BankSample) => {
+    if (!eng) return;
+    unlock();
+    setBankBusy(clip.id);
+    void bankAudio(clip.id)
+      .then((buf) => eng.loadBankClip(eng.snapshot().selectedPad, buf, clip.name))
+      .catch(() => eng.snapshot())
+      .finally(() => setBankBusy(null));
+  };
 
   const snap = eng?.snapshot() ?? DEFAULT_SNAP;
 
@@ -82,7 +129,10 @@ export function Klangpads() {
     >
       <div className="kp-device">
         <header className="kp-top">
-          <h1 className="kp-brand">KLANGPADS</h1>
+          <h1 className="kp-brand">
+            <span className="kp-faska">FASKA</span>
+            KLANGPADS
+          </h1>
           <div className="kp-bpm">
             <span className="kp-bpm-label">BPM</span>
             <div className="kp-lcd" aria-live="polite">
@@ -287,6 +337,60 @@ export function Klangpads() {
             </button>
           </div>
         </div>
+
+        <section className="kp-bank" aria-label="Soundbank">
+          <div className="kp-bank-head">
+            <span className={`kp-bank-led${bankOn ? " is-on" : ""}`} />
+            <span className="kp-bank-title">BANK</span>
+            <span className="kp-bank-meta">{bankOn ? bankLabel : "127.0.0.1:8778"}</span>
+          </div>
+          <div className="kp-bank-types">
+            {[
+              ["", "ALLE"],
+              ["kick", "KICK"],
+              ["snare", "SNARE"],
+              ["hat", "HUT"],
+              ["perc", "PERC"],
+              ["loop", "LOOP"],
+              ["melodic", "MELODIE"],
+            ].map(([id, label]) => (
+              <button
+                key={label}
+                type="button"
+                className={`kp-chip${bankType === id ? " is-on" : ""}`}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  unlock();
+                  setBankType(id);
+                }}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+          <div className="kp-bank-row">
+            {clips.length === 0 ? (
+              <span className="kp-bank-empty">
+                {bankOn ? "Keine Clips in diesem Filter" : "Bank aus — Synth bleibt"}
+              </span>
+            ) : (
+              clips.slice(0, 48).map((clip) => (
+                <button
+                  key={clip.id}
+                  type="button"
+                  className={`kp-clip${bankBusy === clip.id ? " is-busy" : ""}`}
+                  onPointerDown={(e) => {
+                    e.preventDefault();
+                    loadClip(clip);
+                  }}
+                >
+                  <span>{clip.name.replace(/\.[a-z0-9]+$/i, "")}</span>
+                  <em>{clip.pack}</em>
+                </button>
+              ))
+            )}
+          </div>
+        </section>
 
         <div className="kp-well kp-well-pads">
           <div className="kp-pads">
